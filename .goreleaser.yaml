@@ -1,0 +1,34 @@
+version: 2
+project_name: aac2m4b
+before:
+  hooks:
+    - go mod tidy
+release:
+  mode: keep-existing
+builds:
+  - main: ./cmd/aac2m4b
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.Version={{.Version}} -X main.Commit={{.Commit}} -X main.Date={{.Date}}
+changelog:
+  use: github-native
+homebrew_casks:
+  - repository:
+      owner: CallumKerson
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    homepage: "https://github.com/CallumKerson/aac2m4b"
+    license: "MIT"
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/aac2m4b"]
+          end
